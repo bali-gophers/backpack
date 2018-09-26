@@ -1,2 +1,2 @@
 # backpack
-The single source of BaliGophers.
+The single source of BaliGophers' materials
