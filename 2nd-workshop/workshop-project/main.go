@@ -19,7 +19,7 @@ type Order struct {
 
 func createMysql() (*sql.DB, error) {
 	dataSourceName := fmt.Sprintf(
-		"%s:%s@tcp(%s:3306)/hello_db",
+		"%s:%s@tcp(%s:3306)/order_workshop",
 		"raka",
 		"raka-is-not-used",
 		"localhost")
@@ -33,8 +33,28 @@ func createMysql() (*sql.DB, error) {
 	return sqlDB, nil
 }
 
+const (
+	insertQuery = `
+		INSERT INTO orders(
+			order_number, 
+			email, 
+			sku,
+			quantity,
+			created_at) VALUES (?, ?, ?, ?, ?)
+	`
+)
+
 func main() {
-	_, err := createMysql()
+	sqlDB, err := createMysql()
+	if err != nil {
+		fmt.Println(err)
+	}
+	_, err = sqlDB.Exec(insertQuery,
+		"O12",
+		"raka@baligophers.lol",
+		"BALI-1",
+		12,
+		time.Now())
 	if err != nil {
 		fmt.Println(err)
 	}
