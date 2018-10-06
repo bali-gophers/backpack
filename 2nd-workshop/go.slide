@@ -1,0 +1,350 @@
+Basic and Fundamental Go
+10:00 6 Oct 2018
+Tags: foo, bar, baz
+
+Raka Teja
+Software Engineer, Sale Stock Indonesia
+
+* Workshop Intro
+- Thank you to DILo Denpasar for hosting!
+- This is 2nd Go workshop
+- Looking for presenters and volunteers
+- All materials available at [[https://github.com/bali-gophers/backpack]]
+
+* The Go Language
+- Developed internally by Google to solve the kind of problems unique to Google (ie, high scale services/systems)
+- Small and powerful standard library (easy to use)
+- Static typing
+- Super-fast compiles and single-binary deployment
+- Built in unit testing (also functional test!)
+- Less-is-more!
+
+* Who use Go?
+- Google!
+- Tokopedia, Go-Jek (also Grab & Uber), Bukalapak
+- Sale Stock Indonesia, Brank.as, Ice House Corp
+- In SEA there's spacemob (with 1 fulltime engineer)
+
+* Agenda
+
+Fundamental (2 hours):
+- Basic Go
+- Database access
+- Http server
+
+Case Study (2 hours):
+- Build simple web
+
+
+* Hello World
+
+.code helloworld.go
+
+Compile the code
+
+- go build -o helloworld main.go
+
+Run the binary
+
+- ./helloworld
+
+
+* Const
+
+Like other programming language, const used to define value that never change
+
+	const fullName = "Jack Dorsey"
+	const port = 1234
+
+
+Steps:
+- define `const`
+- pick identifier, (ie: fullName)
+- assign the value, (ie: "Jack Dorsey")
+
+* Variable
+
+Defining variable is very similar with const
+
+Declaring variable
+
+	var fullName string
+	var point int
+
+Initiating variable
+
+	fullName = "Jack Dorsey"
+	point = 1200
+
+	var username string = "jack"
+
+* Type Inference
+
+Assign value without defining type
+	
+	var username = "jack"
+	
+	fullName := "Jack Dorsey"
+	point := 1200
+
+* Slice
+Slices are analogous to arrays in other languages, but have some unusual properties.
+
+Arrays have their place, but they're a bit inflexible, so you don't see them too often in Go code. Slices, though, are everywhere. 
+
+	letters := []string{"a", "b", "c", "d"}
+
+A slice can be created with the built-in function called make, which has the signature,
+
+	var s []byte
+	s = make([]byte, 5, 5)
+	// s == []byte{0, 0, 0, 0, 0}
+
+Use keyword `append` to append new item
+
+	letters := []string{"a", "b", "c", "d"}
+	letters = append(letters, "f")
+
+* Map
+Go provides a built-in map type that implements a hash table. A Go map type looks like this:
+
+	map[KeyType]ValueType
+
+Set value
+	
+	m := make(map[string]int)
+	m["jack"] = 24
+
+Get value from map using key
+	
+	val := m["jack"]
+
+	// Safely way
+	val, ok := ["jack"]
+	if !ok {
+		// do something when key doesn't exists
+	}
+	// do something with value
+
+* Looping
+- Go has only one looping construct, the `for` loop.
+- The basic for loop has three components separated by semicolons: the init statement, the condition statement, the post statement
+	sum := 0
+	for i := 0; i < 10; i++ {
+		sum += i
+	}
+	fmt.Println(sum)
+- The init and post statement are optional.
+	for ; sum < 1000; {
+		sum += sum
+	}
+	// then we can drop the semicolon
+	for sum < 1000 {
+		sum += sum
+	}
+
+* Control Structure
+- Go's if statements are like its `for` loops; the expression need not be surrounded by parentheses ( ) but the braces { } are required.
+	func sqrt(x float64) string {
+		if x < 0 {
+			return sqrt(-x) + "i"
+		}
+		return fmt.Sprint(math.Sqrt(x))
+	}
+
+* Functions
+- A function can take zero or more arguments.
+	func add(x int, y int) int {
+		return x + y
+	}
+
+- A function can return any number of result
+	func swap(x, y string) (string, string) {
+		return y, x
+	}
+
+	func main() {
+		a, b := swap("hello", "world")
+		fmt.Println(a, b)
+	}
+
+* Struct
+- A struct is a collection of fields
+	type Money struct {
+		Currency string
+		Value    int64
+	}
+
+	func main() {
+		price := Money{"IDR", 25000}
+		fmt.Println(Money{"IDR", 25000})
+		fmt.Println(price.Value)
+	}
+- A struct with function or a function with receiver
+	func (m Money) String() string {
+		return fmt.Sprintf("%s %d", m.Currency, m.Value)
+	}
+
+	func main() {
+		price := Money{"IDR", 25000}
+		fmt.Println(price.String())
+	}
+
+* Package imports and Visibility
+- Packages (ie, libraries) can be imported into the current package:
+    import  "github.com/foo/bar"
+- Only func's and type's defined in that package beginning with a capital letter are visible when imported:
+    func doSomething() {} // not visible
+    func DoSomething() {} // visible
+- For example:
+    import (
+        "fmt"
+    )
+    fmt.Println("foobar")
+
+* Interface
+- A type implements an interface by implementing its methods. There is no explicit declaration of intent, no "implements" keyword.
+	type Query interface {
+		Query(q string) (string, error)
+	}
+	
+	type CacheQuery struct {}
+	func (c CacheQuery) Query() (string, error) {
+		return "", nil
+	}
+
+	// Usage
+	type Foo struct {
+		query Query
+	}
+	func NewFoo(query Query) Foo {
+		return Foo{query}
+	}
+	cacheQuery := CacheQuery{}
+	foo := NewFoo(cacheQuery)
+
+
+* Error handling
+- Go code uses error values to indicate an abnormal state.
+	func Open(name string) (file *File, err error)
+		f, err := os.Open("filename.ext")
+		if err != nil {
+	    	log.Fatal(err)
+		}
+		// do something with the open *File f
+- The error type is just an interface type.
+	type error interface {
+	    Error() string
+	}
+
+* Defer, panic and recover
+- A defer statement pushes a function call onto a list. The list of saved calls is executed after the surrounding function returns. 
+.code code.go /^func funcWithDefer/,/^}/
+
+	$ go run main.go
+	Hello World
+	ditulis oleh defer
+
+* Defer, panic, recover (cont. )
+
+- Panic is a built-in function that stops the ordinary flow of control and begins panicking
+
+.code code.go /^func funcWithPanic/,/^}/
+
+	$ go run main.go
+	Siap- siap panicking
+	panic: Pesan saat panic
+
+	goroutine 1 [running]:
+	main.main()
+		/Users/rakateja/go/src/github.com/rakateja/lokakarya/panic.go:10 +0xc3
+	exit status 2
+
+* Defer, panic, recover (cont. )
+- Recover is a built-in function that regains control of a panicking goroutine
+.code code.go /^func funcWithRecover/,/^}/
+
+	$ go run main.go
+	Siap- siap panicking
+	Recovered in f Pesan saat panic
+
+* Database Access
+- Package `database/sql` provides a generic interface around SQL (or SQL-like) databases.
+- `github.com/go-sql-driver/mysql`, a MySQL-Driver for Go's database/sql package
+
+Get external package
+
+	go get -u github.com/go-sql-driver/mysql
+
+Usage:
+
+	import "database/sql"
+	import _ "github.com/go-sql-driver/mysql"
+
+	db, err := sql.Open("mysql", "user:password@/dbname")
+
+* Database Access
+Let's create simple Go program to access mysql database
+
+Flow:
+- create database connection
+- insert new row, select last inserted row, then select all row
+
+Import database/sql and mysql driver package
+
+	import "database/sql"
+	import _ "github.com/go-sql-driver/mysql"
+
+	func main() {
+		db, err := sql.Open("mysql", "root:root-password@tcp(localhost:3306)/order")
+	}
+
+* Http server
+Typical request/response cycle in web apps
+
+.image server.png
+
+* Http server (doint it with Go)
+Package net/http provides HTTP server and client implementations.
+
+	http.Handle("/foo", fooHandler)
+
+	http.HandleFunc("/bar", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello, %s", "bar")
+	})
+
+	http.ListenAndServe(":8080", nil)
+
+* Configuration (flag)
+Package flag implements command-line flag parsing.
+	
+	import "flag"
+	
+	var ip = flag.Int("port", 8080, "port for server application")
+	flag.Parse()
+
+Usage
+
+	$ go build -o server main.go
+	$ ./server -port 9000
+
+* Case Study (a simple web app)
+
+- Request model structure
+	type CreateOrder struct {
+		Email    string
+		SKU      string
+		Quantity int
+	}
+
+- Order (response) model structure
+	type Order struct {
+		ID        int
+		OrderNo   string
+		Email     string
+		SKU       string
+		Quantity  int
+		CreatedAt time.Time
+	}
+
+
