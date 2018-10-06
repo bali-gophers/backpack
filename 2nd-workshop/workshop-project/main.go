@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -9,6 +10,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
+
+type CreateOrder struct {
+	Email    string `json:"email"`
+	SKU      string `json:"sku"`
+	Quantity int    `json:"quantity"`
+}
 
 type Order struct {
 	ID        int
@@ -35,6 +42,15 @@ func createMysql() (*sql.DB, error) {
 	return sqlDB, nil
 }
 
+/**
+URL: localhost:8080/order
+{
+	"email": "",
+	"sku": "SKU-A",
+	"quantity": 2
+}
+**/
+
 const (
 	insertQuery = `
 		INSERT INTO orders(
@@ -45,6 +61,19 @@ const (
 			created_at) VALUES (?, ?, ?, ?, ?)
 	`
 )
+
+func insertRow(sqlDB *sql.DB, order Order) error {
+	_, err := sqlDB.Exec(insertQuery,
+		order.OrderNo,
+		order.Email,
+		order.SKU,
+		order.Quantity,
+		order.CreatedAt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func main() {
 	sqlDB, err := createMysql()
@@ -84,6 +113,30 @@ func main() {
 		w.Write([]byte(plainInfo))
 
 	})
+
+	router.HandleFunc("/order", func(w http.ResponseWriter, req *http.Request) {
+		var createOrder CreateOrder
+		err := json.NewDecoder(req.Body).
+			Decode(&createOrder)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		orderEntity := Order{
+			OrderNo:   "RANDOM-No",
+			Email:     createOrder.Email,
+			SKU:       createOrder.SKU,
+			Quantity:  createOrder.Quantity,
+			CreatedAt: time.Now(),
+		}
+		err = insertRow(sqlDB, orderEntity)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		fmt.Printf("Email %s \n", createOrder.Email)
+		w.Write([]byte(createOrder.Email))
+	}).Methods("POST")
 	http.ListenAndServe(":8080", router)
 
 }
