@@ -3,9 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 )
 
 type Order struct {
@@ -19,7 +21,7 @@ type Order struct {
 
 func createMysql() (*sql.DB, error) {
 	dataSourceName := fmt.Sprintf(
-		"%s:%s@tcp(%s:3306)/order_workshop",
+		"%s:%s@tcp(%s:3306)/order_workshop?parseTime=true",
 		"raka",
 		"raka-is-not-used",
 		"localhost")
@@ -58,4 +60,30 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	router := mux.NewRouter()
+	router.HandleFunc("/order/{id}", func(w http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		orderID := vars["id"]
+		row := sqlDB.QueryRow(
+			"SELECT * FROM orders WHERE id=?",
+			orderID)
+		var order Order
+		err = row.Scan(
+			&order.ID,
+			&order.OrderNo,
+			&order.Email,
+			&order.SKU,
+			&order.Quantity,
+			&order.CreatedAt)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		plainInfo := fmt.Sprintf("%s => %s", order.Email, order.OrderNo)
+		w.Write([]byte(plainInfo))
+
+	})
+	http.ListenAndServe(":8080", router)
+
 }
