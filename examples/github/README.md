@@ -6,7 +6,7 @@
 Authorization callback URL = http://localhost:9000/auth/callback
 
 ```
-- Keep client ID & client Secret, it will use later
+- Keep client ID & client Secret, it will be used later
 
 ## Installation
 - Run `go get github.com/bali-gophers/backpack`
