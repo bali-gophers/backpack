@@ -5,11 +5,6 @@ import (
 	"net/http"
 )
 
-var (
-	clientID     string
-	clientSecret string
-)
-
 func main() {
 	log.Println("Starting server ...")
 	cfg, err := NewConfig()
