@@ -49,6 +49,10 @@ func (h Handler) Callback(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("Code couldn't be found"))
 		return
 	}
+	if len(codes) == 0 {
+		w.Write([]byte("Code couldn't be found"))
+		return
+	}
 	res, err := h.Client.GetAccessToken(codes[0])
 	if err != nil {
 		w.Write([]byte(err.Error()))
