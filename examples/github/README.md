@@ -14,6 +14,6 @@ Authorization callback URL = http://localhost:9000/auth/callback
 - Run `make build`
 
 ## How to run
-- Setup environment variables by putting the values into `.env` file, see `env.example` for the examples
+- Setup environment variables by putting the values into `.env` file, see `.env.example` for the examples
 - Run `make run`
 - Open `localhost:9000/auth` in your favorite browser
