@@ -11,10 +11,9 @@ Authorization callback URL = http://localhost:9000/auth/callback
 ## Installation
 - Run `go get github.com/bali-gophers/backpack`
 - Go to `examples/github` directory
-- Run `go build -o goBinary`
+- Run `make build`
 
 ## How to run
-- Run `go build -o goBinary`
-- Setup environment variable, provide `GITHUB_CLIENT_ID` & `GITHUB_CLIENT_SECRET` that you get before when creating Github Oauth apps
-- Run `./goBinary`
+- Setup environment variables by putting the values into `.env` file, see `env.example` for the examples
+- Run `make run`
 - Open `localhost:9000/auth` in your favorite browser
