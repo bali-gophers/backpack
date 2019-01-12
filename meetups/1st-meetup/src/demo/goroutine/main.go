@@ -21,7 +21,7 @@ func buildFileName(fullURL string) (string, error) {
 }
 
 func downloadFile(url string) (string, error) {
-	fmt.Printf("downloading %s ...\n", url)
+	fmt.Printf("Downloading %s ...\n", url)
 	fileName, err := buildFileName(url)
 	if err != nil {
 		return "", err
@@ -46,6 +46,7 @@ func downloadFile(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	fmt.Printf("Download \"%s\" successfully\n", fileName)
 	return fileName, nil
 }
 
@@ -93,13 +94,9 @@ func main() {
 		"https://upload.wikimedia.org/wikipedia/commons/c/cb/Pocket-Gopher_Ano-Nuevo-SP.jpg",
 		"https://independent.media.clients.ellingtoncms.com/img/croppedphotos/2016/05/16/gopher-drawing-1_t958.jpg",
 	}
-	gophers, err := downloadMultipleFiles(urls)
+	files, err := downloadMultipleFiles(urls)
 	if err != nil {
 		fmt.Printf("Errors: %v \n", err)
 	}
-	if len(gophers) > 0 {
-		for _, gopher := range gophers {
-			fmt.Println(gopher)
-		}
-	}
+	fmt.Printf("Finished downloading %d files \n", len(files))
 }
