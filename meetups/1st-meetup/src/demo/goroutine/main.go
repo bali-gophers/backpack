@@ -49,6 +49,14 @@ func downloadFile(url string) (string, error) {
 	return fileName, nil
 }
 
+func multipleErrorsToString(errs []error) string {
+	var errString string
+	for _, err := range errs {
+		errString = errString + ", " + err.Error()
+	}
+	return errString
+}
+
 func downloadMultipleFiles(urls []string) ([]string, error) {
 	result := make(chan string, len(urls))
 	errch := make(chan error, len(urls))
@@ -65,16 +73,16 @@ func downloadMultipleFiles(urls []string) ([]string, error) {
 		}(url)
 	}
 	results := make([]string, 0)
-	var errString string
+	var errs []error
 	for i := 0; i < len(urls); i++ {
 		results = append(results, <-result)
 		if err := <-errch; err != nil {
-			errString = errString + " " + err.Error()
+			errs = append(errs, err)
 		}
 	}
 	var err error
-	if errString != "" {
-		err = errors.New(errString)
+	if len(errs) > 0 {
+		err = errors.New(multipleErrorsToString(errs))
 	}
 	return results, err
 }
