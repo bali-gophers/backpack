@@ -293,10 +293,10 @@ Source:
 
 * Sale Stock
 
+- Use Go since end of 2016
 - ~ 30 software engineers (infra, QA, feature)
-- Use Go on multiple products (tooling, internal, customer-facing products)
+- Use Go on multiple products (infra, internal products, customer-facing products)
 - Micro-service architecture with gRPC and RESTful API
-- Use Go since 2016
 
 * Grab
 
@@ -312,7 +312,9 @@ Source: https://www.youtube.com/watch?v=HrTt_C-2VGY&t=43s
 
 - Go helps GO-JEK scale up!
 
-Source: Internal GO-JEK
+Source: 
+	- https://youtu.be/LifJKSoITf4?t=167
+	- https://blog.gojekengineering.com
 
 * Refference 
 - https://talks.golang.org/2011/Real_World_Go.pdf
