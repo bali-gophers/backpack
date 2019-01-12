@@ -1,0 +1,66 @@
+Introduction to Go - Demo
+10:00 11 Jan 2019
+Tags: go, golang, introduction
+
+Made Raka
+Software Engineer, Sale Stock Indonesia
+
+* Context
+
+Package context defines the Context type, which carries deadlines, cancelation signals, and other request-scoped values across API boundaries and between processes.
+
+    func DoSomething(ctx context.Context, arg Arg) error {
+        // ... use ctx ...
+    }
+
+* net/http
+
+Package http provides HTTP client and server implementations.
+
+    package main
+
+    import "net/http"
+
+    func main() {
+        http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+            w.Write([]byte("Hello))
+        })
+        http.ListenAndServe(":8080", nil)
+    }
+
+* Concurrency: goroutines
+
+Goroutines are like threads
+
+But cheaper:
+- Smaller
+- Many goroutines per operating system thread
+
+Start a new goroutine with the go keyword:
+    
+    go doSomething()
+    go doSomething()
+
+* Concurrency: channels
+
+Channels are for:
+- Synchronization
+- Communication
+
+The channel operator <- is used to send and receive values:
+
+    func compute(ch chan int) {
+        ch <- someComputation()
+    }
+
+    func main() {
+        ch := make(chan int)
+        go compute(ch)
+        result := <-ch
+    }
+
+* Testing
+
+Package testing provides support for automated testing of Go packages. It is intended to be used in concert with the “go test” command, which automates execution of any function of the form
+
+    func TestXxx(*testing.T)

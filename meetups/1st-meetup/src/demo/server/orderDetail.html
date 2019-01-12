@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Order detail - {{ .OrderNumber }}</title>
+</head>
+<body>
+	<h3>Order detail - {{ .OrderNumber }}</h3>
+
+	<p>Order: {{ .OrderNumber }}</p>
+	<p>Total: {{ .Total }}</p>
+
+	<h4>Details:</h4>
+	<table border="1" cellpadding="8" width="40%" cellspacing="0">
+		<thead>
+			<tr>
+				<th>Title</th>
+				<th>Count</th>
+				<th>Price</th>
+			</tr>
+		</thead>
+		{{ range .Items }}
+			<tr>
+				<td>{{ .Title }}</td>
+				<td>{{ .Count }}</td>
+				<td>{{ .Price }}</td>
+			</tr>
+		{{ end}}
+	</table>
+</body>
+</html>
