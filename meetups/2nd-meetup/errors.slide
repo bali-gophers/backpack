@@ -1,0 +1,192 @@
+Error Handling Practices in Go
+10:00 15 Feb 2019
+Tags: go, golang, error
+
+Made Raka
+Software Engineer, Sale Stock Indonesia
+
+* Introduction
+- First of all, thanks a lot to STMIK Primakara for hosting this meetup
+- and Primakara Developer for helping us to setup this meetup
+
+Please join us if you are not a member yet
+
+- Meetup: [[https://www.meetup.com/Bali-Gophers][https://www.meetup.com/Bali-Gophers]]
+- Telegram: [[https://t.me/BaliGophers][https://t.me/BaliGophers]]
+
+* Why Go?
+
+- Statically typed languages are efficient, but typically bureaucratic and overly complex
+- Dynamic languages can be easy to use, but are error-prone, inefficient, and break down at scale
+- Concurrent programming is hard (threads, locks)
+- “Speed, reliability, or simplicity: pick two.” (sometimes just one)
+- Can’t we do better?
+
+* The Go Language
+- Developed internally by Google to solve the kind of problems unique to Google (ie, high scale services/systems)
+- Small and powerful standard library (easy to use)
+- Static type
+- Super-fast compiles and single-binary deployment
+- Built in unit testing (also functional test!)
+- Less-is-more!
+
+* Who use Go?
+- Google!
+- Tokopedia, Go-Jek (also Grab & Uber), Bukalapak
+- Sale Stock Indonesia, Brank.as
+
+* Errors in Go
+There are 2 ways of reporting error in Go
+- Panic, its similar to exception in other programming languages, but we need to use it carefully
+- Error as returned value
+
+* Know when to panic
+- When the user explicitly ask
+
+    func MustCompile(str string) *Regexp {
+        regexp, err := Compile(str)
+        if err != nil {
+            panic(`regexp: Compile(` + quote(str) + `): ` + err.Error())
+        }
+        return regexp
+    }
+
+- When in setting up phase of an application
+    func buildMysqlConn(host, user, pass string) (sql.DB, error) {
+        if host == "" {
+            panic("empty given mysql host")
+        }
+        ...
+        return 
+    }
+
+* Errors are values
+Errors are values is fundamental point, we'll need to always check the error, and there's no magic block to simplify this
+
+    _, err := doSomething()
+    if err != nil {
+        return 
+    }
+
+
+* Simple error usage
+
+    var ErrEntityNotFound = errors.New("entity couldn't be found")
+    var ErrAlreadyExists = errors.New("item is already exists")
+
+    func doSomething() error {
+        if someCondition {
+            return ErrEntityNotFound
+        } else if otherCondition {
+            return ErrAlreadyExists
+        }
+        return nil
+    }
+
+Then, use it easily in the next flow
+    
+    if err == ErrAlreadyExists {
+        // tell user that the item is already exists
+    }
+
+* Implicit Error() interface
+    type Error interface {
+        Error() string
+    }
+
+- Implementation
+    type MyError struct {
+        Code string
+        Message string
+    }
+    func (e MyError) Error() string {
+        return fmt.Sprintf("%s: %s", e.Code, c.Message)
+    }
+
+* Build custom error using Error() interface
+Then, we can build predefined custom error
+
+    var (
+        ErrAlreadyExists = MyError{"AlreadyExists", "item is already exists"}
+    )
+
+    func doSomething() error {
+        if someCondition {
+            return ErrAlreadyExists
+        }
+        return nil
+    }
+
+* Build custom error using Error() interface (cont'd)
+
+    func main() {
+        err := doSomething()
+        if err != nil {
+            if e, ok := err.(MyError); ok {
+                // handle custom error
+            } else {
+                // handle a different error
+            }
+        }
+    }
+
+* Stack Trace
+- Stack Trace using Errgo
+
+It provides stack trace information, it will record where the error happended.
+
+    func handleSomething() error {
+        return errgo.Mask(errors.New("item is nil"))
+    }
+
+    func main() {
+        err := handleSomething()
+        if err != nil {
+            if e, ok := err.(errgo.Locationer); ok {
+                log.Printf("%s - %s", e.Location(), err.Error())
+            } else {
+                log.Println(err.Error())
+            }
+        }
+    }
+
+Output:
+
+    2019/02/15 00:03:48 /Users/raka/thirdparty/simpletrace.go:11 - item is nil
+
+* Stack Trace (cont'd)
+- Custom Nested Error
+
+Rob Pike already wrote an article about it here [[https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html][https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html]]
+
+Example result:
+
+    client.Lookup: ann@example.com/test/file: item does not exist:
+         dir/remote("dir.example.com:443").Lookup:
+         dir/server.Lookup:
+         store/remote("store.example.com:443").Get:
+         fetching https://storage.googleapis.com/bucket/C1AF...: 404 Not Found
+
+* Stack Trace (cont'd)
+
+    // Error defines a standard application error.
+    type Error struct {
+        // Machine-readable error code.
+        Code    string
+
+        // Human-readable message.
+        Message string
+
+        // Logical operation and nested error.
+        Op      string
+        Err     error
+    }
+
+Err allows us to nest errors, then we need to search recursively for actual error.
+
+* Q/A
+
+* References
+- https://justinas.org/best-practices-for-errors-in-go
+- https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html
+- https://middlemost.com/failure-is-your-domain/
